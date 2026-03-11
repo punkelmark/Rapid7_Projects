@@ -1,0 +1,1116 @@
+{
+    "data": [
+        {
+            "rule_set": "DR",
+            "rrn": "rrn:cba:::detection-rule:YB347ZIVVE0V",
+            "rrn_revision": "rrn:cba:::detection-rule:version:YB347ZIVVE0V",
+            "obsolete": false,
+            "invalid": false,
+            "create_date": "2025-01-29T19:19:21.215347Z",
+            "state": {
+                "value": "ACTIVE",
+                "reason": null
+            },
+            "last_modified_date": "2025-02-04T01:38:53.008788Z",
+            "activated_date": "2025-02-04T01:38:53.008788Z",
+            "assessment": [],
+            "rule": {
+                "schema": 2,
+                "name": "Account Compromise - ASREP Roast Ticket and Account Logon",
+                "rule_action": "CREATES_INVESTIGATIONS",
+                "priority_level": "HIGH",
+                "condition": {
+                    "timespan": "48h",
+                    "legs": [
+                        {
+                            "condition": {
+                                "type": "LEQL",
+                                "value": "from(\n  event_type = \"asset_auth\"\n)\nwhere(\n    source_json.eventCode = \"4624\"\n  AND\n    logon_type\n      IN [\n        \"NETWORK\",\n        \"REMOTE\"\n      ]\n  AND\n    new_authentication = NOCASE(\"true\")\n  AND\n    result = NOCASE(\"SUCCESS\")\n  AND\n    service\n      ISTARTS-WITH-ANY [\n        \"ntlm\",\n        \"kerberos\"\n      ]\n)"
+                            },
+                            "count": 1,
+                            "id": "rrn:cba:::detection-rule:leg:version:EQGMM2B9NU51",
+                            "name": "Account Logon",
+                            "description": null,
+                            "count_by": {},
+                            "group_by_overrides": null
+                        },
+                        {
+                            "condition": {
+                                "type": "LEQL",
+                                "value": "from(\n  event_type = \"asset_auth\"\n)\nwhere(\n    source_json.eventCode = \"4768\"\n  AND\n    source_json.eventData.PreAuthType,\n    source_json.insertionStrings.8\n      = \"0\"\n  AND\n    source_json.eventData.TicketEncryptionType,\n    source_json.insertionStrings.7\n      IN [\n        \"0x1\",\n        \"0x3\",\n        \"0x17\",\n        \"0x18\"\n      ]\n  AND\n    result = NOCASE(\"SUCCESS\")\n)"
+                            },
+                            "count": 1,
+                            "id": "rrn:cba:::detection-rule:leg:version:5B0GEV87D287",
+                            "name": "4768 - ASREP Roast Ticket",
+                            "description": null,
+                            "count_by": {},
+                            "group_by_overrides": null
+                        }
+                    ],
+                    "type": "COMPOSITE",
+                    "group_by": {
+                        "0": "source_asset_address",
+                        "1": "destination_account"
+                    }
+                },
+                "tactics": [
+                    "TA0006"
+                ],
+                "techniques": [
+                    "T1558.004"
+                ],
+                "labels": [],
+                "description": "An AS-REP roasting attack takes place by requesting a ticket granting ticket (TGT) from the domain's authentication service (AS) for an account that has pre-authentication disabled. The resulting reply (AS-REP) is a TGT that is directly encrypted with the accounts password, instead of the usual process where the TGT is encrypted with a password derived from the krbtgt service account's password. As a result, any TGT requested without pre-authentication that uses a vulnerable encryption scheme (e.g., RC4 or DES), can be used to directly extract and crack the target accounts password hash. This type of attack most often takes place in the context of many surrounding TGT request failures, which can represent other failed requests (user's typically have pre-auth enabled) or even other types of attacks (e.g., password spray).\n\nWhen an AS-REP roast ticket is successfully requested, and then the targeted account has a successful logon within the time window, indicating the account was compromised, this detection will generate an alert.",
+                "recommendation": "Verify that the activity occurred in the correct order. The logon should take place after the ASREP roast ticket was requested, as the hash is acquired and then cracked to recover the target account's password, in the event that a compromise has occurred. If this activity is not expected, use the source address to identify all successfully requested ASREP roast tickets, and apply subsequent containment for impacted accounts. Use the available indicators to scope the environment for any other suspicious activity and apply containment as necessary to prevent further compromise.\n\n\nTo prevent this type of attack in the future, enable pre-authentication for all domain users. Disable vulnerable encryption schemes and maximize the complexity of all service accounts to frustrate offline hash cracking attempts. Both of these changes can be enforced domain wide via group policy.",
+                "throttle": null,
+                "threshold": null
+            },
+            "rule_groups": [],
+            "event_types": [
+                "asset_auth"
+            ],
+            "event_subtypes": [],
+            "detection_count": 0,
+            "threats": [
+                {
+                    "uba_migrated": false,
+                    "detection_rule_count": 43,
+                    "name": "Suspicious Asset Authentications",
+                    "description": "These detections identify suspicious activity from asset authentication records collected by Insight Agent.",
+                    "rrn": "rrn:cba:::threat:7MCMGE0U0QRC"
+                }
+            ],
+            "exception_count": 0,
+            "scoped_exception_count": 0,
+            "score": 0,
+            "last_detected_date": null,
+            "workflows": null,
+            "total_exception_matches_month": null,
+            "total_scoped_exception_matches_month": null,
+            "responsibility": null,
+            "responsibilities": null
+        },
+        {
+            "rule_set": "DR",
+            "rrn": "rrn:cba:::detection-rule:QZ6MMYLS7VHE",
+            "rrn_revision": "rrn:cba:::detection-rule:version:USHB1WVF104Y",
+            "obsolete": false,
+            "invalid": false,
+            "create_date": "2024-12-19T16:59:19.238897Z",
+            "state": {
+                "value": "ACTIVE",
+                "reason": null
+            },
+            "last_modified_date": "2025-01-10T16:44:49.905288Z",
+            "activated_date": "2024-12-21T01:38:21.303613Z",
+            "assessment": [],
+            "rule": {
+                "schema": 2,
+                "name": "Account Compromise - Kerberoasting Ticket and Service Account Logon",
+                "rule_action": "CREATES_INVESTIGATIONS",
+                "priority_level": "HIGH",
+                "condition": {
+                    "timespan": "48h",
+                    "legs": [
+                        {
+                            "condition": {
+                                "type": "LEQL",
+                                "value": "from(\n  event_type = \"asset_auth\"\n)\nwhere(\n    source_json.eventCode = \"4769\"\n  AND\n    service = NOCASE(\"kerberos\")\n  AND\n    source_json.insertionStrings.5\n      IN [\n        \"0x1\",\n        \"0x3\",\n        \"0x17\",\n        \"0x18\"\n      ]\n  AND\n    source_json.insertionStrings.4 ISTARTS-WITH \"0x40\"\n  AND\n    result = NOCASE(\"SUCCESS\")\n  AND\n    NOT (\n        source_json.eventData.ServiceName == destination_account\n      OR\n        ALL(\n          destination_account,\n          source_json.insertionStrings.2\n        )\n          ISTARTS-WITH \"svc\"\n    )\n)"
+                            },
+                            "count": 1,
+                            "id": "rrn:cba:::detection-rule:leg:version:PDU5PTYFS32X",
+                            "name": "4769 - A Kerberos service ticket was requested.",
+                            "description": null,
+                            "count_by": {},
+                            "group_by_overrides": {
+                                "1": "source_json.insertionStrings.2"
+                            }
+                        },
+                        {
+                            "condition": {
+                                "type": "LEQL",
+                                "value": "from(\n  event_type = \"asset_auth\"\n)\nwhere(\n    source_json.eventCode = \"4624\"\n  AND\n    logon_type\n      IN [\n        \"NETWORK\",\n        \"REMOTE\"\n      ]\n  AND\n    new_authentication = NOCASE(\"true\")\n  AND\n    result = NOCASE(\"SUCCESS\")\n  AND\n    service\n      ISTARTS-WITH-ANY [\n        \"ntlm\",\n        \"kerberos\"\n      ]\n)"
+                            },
+                            "count": 1,
+                            "id": "rrn:cba:::detection-rule:leg:version:LPQUONWVP2ED",
+                            "name": "Service Account Logon",
+                            "description": null,
+                            "count_by": {},
+                            "group_by_overrides": null
+                        }
+                    ],
+                    "type": "COMPOSITE",
+                    "group_by": {
+                        "0": "source_asset_address",
+                        "1": "destination_account"
+                    }
+                },
+                "tactics": [
+                    "TA0003",
+                    "TA0006"
+                ],
+                "techniques": [
+                    "T1558.003",
+                    "T1558",
+                    "T1136.002"
+                ],
+                "labels": [],
+                "description": "A Kerberoasting attack typically involves a user requesting a service ticket that uses a vulnerable encryption scheme (i.e., DES or RC4). The ticket can then be used to extract and crack a service account's password offline. If successful, the attacker can then use the service account's credentials to authenticate, potentially also facilitating privilege escalation or lateral movement within the environment. \n\nIf such a service ticket is requested, and then the service account for which the vulnerable ticket was requested is used to logon, this detection will match. Specifically, this detection looks for a new authentication by the service account, from the same source address that successfully requested the vulnerable service ticket.",
+                "recommendation": "**Important: This detection matches across a very large time window to account for offline hash cracking and ordered matching is not currently available.**\n* **Verify that the event happened in the expected order: A vulnerable service ticket request (4769) *followed by* a successful logon for that service account (4624).** \n* **Verify that the requesting account and the target service account within the service ticket are not the same.** \n\n**If both of these cases are true, the alert should be investigated further. If either of these conditions are not met, the alert may be closed as benign.**\n\nUsing the source asset address and target service account fields from the matched payload, the following LEQL queries can be used to quickly see the order in which the events happened:\n\nVia Groupby():\n```\nwhere(source_asset_address=\"<suspicious_source_addr>\" and ((source_json.eventCode=\"4624\" and destination_account ICONTAINS \"<target_service_account>\" and new_authentication=NOCASE(\"true\")) or (source_json.eventCode=\"4769\" and source_json.insertionStrings.5 IN [\"0x1\",\"0x3\",\"0x17\",\"0x18\"]  and source_json.insertionStrings.2 ICONTAINS \"<target_service_account>\")) and result=NOCASE(\"SUCCESS\") and /timestamp\":\"(?P<date>.*?T\\d{2}:\\d{2})/)groupby(date,source_json.eventCode)sort(asc)\n```\nVia Select():\n```\nselect(source_json.eventCode as event_code,source_json.insertionStrings.2 as 4769_target_service_account,source_json.insertionStrings.0 as 4769_requesting_account,source_json.insertionStrings.5 as 4624_destination_account)where(source_asset_address=\"suspicious_source_addr\" and ((source_json.eventCode=\"4624\" and destination_account ICONTAINS \"target_service_account\" and new_authentication=NOCASE(\"true\")) or (source_json.eventCode=\"4769\" and source_json.insertionStrings.5 IN [\"0x1\",\"0x3\",\"0x17\",\"0x18\"]  and source_json.insertionStrings.2 ICONTAINS \"target_service_account\")) and result=NOCASE(\"SUCCESS\"))\n```\n\nIf both of the above cases are true and the activity is unexpected, disable the involved accounts and quarantine impacted assets, pending further investigation. Review asset authentication or raw logs to identify other service accounts that successfully had vulnerable service tickets requested, these will also need to be remediated. Determine the source of the activity (i.e., initial access) and apply further containment as necessary. The source asset address is a likely useful pivot point.",
+                "throttle": null,
+                "threshold": null
+            },
+            "rule_groups": [],
+            "event_types": [
+                "asset_auth"
+            ],
+            "event_subtypes": [],
+            "detection_count": 0,
+            "threats": [
+                {
+                    "uba_migrated": false,
+                    "detection_rule_count": 1738,
+                    "name": "Suspicious Processes - Windows",
+                    "description": "These detections identify suspicious activity from process start records collected by Insight Agent from Windows endpoints.",
+                    "rrn": "rrn:cba:::threat:JL5QP5GJERNL"
+                }
+            ],
+            "exception_count": 0,
+            "scoped_exception_count": 0,
+            "score": 0,
+            "last_detected_date": null,
+            "workflows": null,
+            "total_exception_matches_month": null,
+            "total_scoped_exception_matches_month": null,
+            "responsibility": null,
+            "responsibilities": null
+        },
+        {
+            "rule_set": "DR",
+            "rrn": "rrn:cba:::detection-rule:QO59IOJKDET8",
+            "rrn_revision": "rrn:cba:::detection-rule:version:9J4Q9KYNYI7Z",
+            "obsolete": false,
+            "invalid": false,
+            "create_date": "2025-10-14T16:03:19.27334Z",
+            "state": {
+                "value": "ACTIVE",
+                "reason": null
+            },
+            "last_modified_date": "2025-10-16T21:33:33.710806Z",
+            "activated_date": "2025-10-14T16:03:19.27334Z",
+            "assessment": [],
+            "rule": {
+                "schema": 2,
+                "name": "Account Compromise (O365) - Document SharingSet Spike and Suspicious Ingress Auth",
+                "rule_action": "CREATES_INVESTIGATIONS",
+                "priority_level": "HIGH",
+                "condition": {
+                    "timespan": "3h",
+                    "legs": [
+                        {
+                            "condition": {
+                                "type": "LEQL",
+                                "value": "from(\n  event_type = \"ingress_auth\"\n)\nwhere(\n    service = NOCASE(\"o365\")\n  AND\n    SUBQUERY(\"Low Cost VPN Providers\")\n  AND\n    result = NOCASE(\"SUCCESS\")\n)"
+                            },
+                            "count": 1,
+                            "id": "rrn:cba:::detection-rule:leg:version:Y5OEPL5F1IAC",
+                            "name": "Suspicious ISP Ingress Auth",
+                            "description": null,
+                            "count_by": {},
+                            "group_by_overrides": null
+                        },
+                        {
+                            "condition": {
+                                "type": "LEQL",
+                                "value": "from(\n  event_type = \"cloud_service_activity\"\n)\nwhere(\n    service = NOCASE(\"o365\")\n  AND\n    action = NOCASE(\"SharingSet\")\n  AND\n    NOT\n      source_json.TargetUserOrGroupType ICONTAINS \"Group\"\n  AND\n    source_json.ItemType = NOCASE(\"File\")\n  AND\n    source_json.SourceFileExtension\n      IIN [\n        \"doc\",\n        \"docx\",\n        \"pdf\",\n        \"txt\"\n      ]\n)"
+                            },
+                            "count": 10,
+                            "id": "rrn:cba:::detection-rule:leg:version:9ZPWUAERMQLL",
+                            "name": "O365 SharingSet Spike",
+                            "description": null,
+                            "count_by": {
+                                "0": "source_json.TargetUserOrGroupName"
+                            },
+                            "group_by_overrides": {
+                                "0": "source_account"
+                            }
+                        }
+                    ],
+                    "type": "COMPOSITE",
+                    "group_by": {
+                        "0": "account"
+                    }
+                },
+                "tactics": [
+                    "TA0001"
+                ],
+                "techniques": [
+                    "T1566.002",
+                    "T1566.001",
+                    "T1566"
+                ],
+                "labels": [],
+                "description": "During Office 365 phishing campaigns, threat actors have been observed using secure links to distribute phishing documents. After gaining initial access, this technique can be used to compromise additional accounts that are available in the target account's contacts/address book. \n\nBy abusing a secure link, threat actors can limit the visibility of the document to the intended targets and make investigation more difficult. When a document is shared a SharingSet action is logged for each user account that the document is shared with, meaning that a high volume of SharingSet actions indicates mass distribution and is typically correlated with a related SecureLink action (the method by which the document was shared).",
+                "recommendation": "Review the document that was shared, including the contents if possible, to determine if it is malicious in nature. Phishing documents in particular will often include a call to action, on behalf of the user, in their name, or otherwise try to draw their attention. A common tactic is to try and scare the target user, for example, by imparting a time pressure to a sensitive topic, to trick them into doing what the threat actor wants without having time to think about it (e.g., final notice for non-existent bill). Other factors in the document name may be suspicious, such as sharing a document with a default name, where the threat actor quickly copied a phishing template or link over and then shared it.\n\nIf the activity is not expected, contain the impacted user accounts and remove any malicious links and/or documents. Use conditional access policies to prevent users from authenticating from sources that are not approved, such as low cost VPN or hosting providers, as threat actors commonly use these services to hide their location. Provide user awareness training to help them identify and thwart phishing attempts.",
+                "throttle": null,
+                "threshold": null
+            },
+            "rule_groups": [],
+            "event_types": [
+                "ingress_auth",
+                "cloud_service_activity"
+            ],
+            "event_subtypes": [],
+            "detection_count": 0,
+            "threats": [
+                {
+                    "uba_migrated": false,
+                    "detection_rule_count": 52,
+                    "name": "Microsoft Azure Cloud Activity",
+                    "description": "This threat contains detections based on Microsoft Azure Cloud logs.",
+                    "rrn": "rrn:cba:::threat:CGLQUINV3FSP"
+                },
+                {
+                    "uba_migrated": false,
+                    "detection_rule_count": 138,
+                    "name": "Suspicious Ingress Authentications",
+                    "description": "These detections identify suspicious activity from ingress authentication records collected by InsightIDR Collectors.",
+                    "rrn": "rrn:cba:::threat:I88NJKX8V1K3"
+                },
+                {
+                    "uba_migrated": false,
+                    "detection_rule_count": 60,
+                    "name": "Cloud Service Activity",
+                    "description": "These detections identify suspicious activity, actions and events related to the use of cloud-based services",
+                    "rrn": "rrn:cba:::threat:8TKNVX80FYTU"
+                }
+            ],
+            "exception_count": 0,
+            "scoped_exception_count": 0,
+            "score": 0,
+            "last_detected_date": null,
+            "workflows": null,
+            "total_exception_matches_month": null,
+            "total_scoped_exception_matches_month": null,
+            "responsibility": null,
+            "responsibilities": null
+        },
+        {
+            "rule_set": "DR",
+            "rrn": "rrn:cba:::detection-rule:J5631770GYYH",
+            "rrn_revision": "rrn:cba:::detection-rule:version:MFHPWA3DHN62",
+            "obsolete": false,
+            "invalid": false,
+            "create_date": "2025-06-16T18:07:00.966618Z",
+            "state": {
+                "value": "ACTIVE",
+                "reason": null
+            },
+            "last_modified_date": "2025-07-02T13:59:11.506391Z",
+            "activated_date": "2025-06-18T01:40:35.884022Z",
+            "assessment": [],
+            "rule": {
+                "schema": 2,
+                "name": "Account Compromise (O365) - Low Cost VPN Auth and Outbound Rate Limited Exceeded/High Volume Spam",
+                "rule_action": "CREATES_INVESTIGATIONS",
+                "priority_level": "MEDIUM",
+                "condition": {
+                    "timespan": "24h",
+                    "legs": [
+                        {
+                            "condition": {
+                                "type": "LEQL",
+                                "value": "from(\n  event_type = \"cloud_service_activity\"\n)\nwhere(\n    service = NOCASE(\"o365\")\n  AND\n    action ICONTAINS \"HygieneTenantEvents\"\n  AND\n    (\n        (\n            source_json.EventId = \"34\"\n          AND\n            source_json.Reason ISTARTS-WITH \"RecipientRateLimitExceeded\"\n        )\n      OR\n        (\n            source_json.EventId\n              IN [\n                \"4\",\n                \"31\"\n              ]\n          AND\n            source_json.Reason = /^OutboundSpamLast24Hours=\\d{2}\\d+.*/i\n        )\n    )\n)"
+                            },
+                            "count": 1,
+                            "id": "rrn:cba:::detection-rule:leg:version:07XEF2KGU77M",
+                            "name": "Rate Limited Exceeded or High Volume of Spam",
+                            "description": null,
+                            "count_by": {},
+                            "group_by_overrides": {
+                                "0": "source_account"
+                            }
+                        },
+                        {
+                            "condition": {
+                                "type": "UNAVAILABLE",
+                                "value": null
+                            },
+                            "count": 1,
+                            "id": "rrn:cba:::detection-rule:leg:version:5GJ3RLFEW1S6",
+                            "name": "Low Cost VPN Auth",
+                            "description": null,
+                            "count_by": {},
+                            "group_by_overrides": null
+                        }
+                    ],
+                    "type": "COMPOSITE",
+                    "group_by": {
+                        "0": "account"
+                    }
+                },
+                "tactics": [
+                    "TA0042",
+                    "TA0001"
+                ],
+                "techniques": [
+                    "T1586",
+                    "T1585.002",
+                    "T1586.002",
+                    "T1566"
+                ],
+                "labels": [],
+                "description": "This detection correlates a Microsoft Office 365 account having exceeded the default daily cap for outbound mail (10,000), or being identified as sending a large volume of potential spam, and having authenticated to the environment from a known low cost hosting provider. These actions are indicative of an account compromise, where a threat actor may phish or otherwise deceive a user to steal their credentials, and then use the compromised account to attempt to phish/spam other users.",
+                "recommendation": "If the activity is not expected, disable the impacted account(s) and revoke all active sessions. Review the user's inbox rules and remove any unexpected entries. Review actions taken from the impacted account, from the suspicious source IP address or ISP. \n\nDetermine the source of the authentication which led to the suspicious activity and use the relevant information (ISP, IP address, etc.) to scope the environment for any other users which might be impacted. Implement MFA for all users within the environment and provide security awareness training to mitigate future credential theft. Implement conditional access policies to prevent authentication from low cost hosting providers which are commonly abused by threat actors to hide their location.",
+                "throttle": null,
+                "threshold": null
+            },
+            "rule_groups": [],
+            "event_types": [
+                "ingress_auth",
+                "cloud_service_activity",
+                "sso"
+            ],
+            "event_subtypes": [],
+            "detection_count": 0,
+            "threats": [
+                {
+                    "uba_migrated": false,
+                    "detection_rule_count": 52,
+                    "name": "Microsoft Azure Cloud Activity",
+                    "description": "This threat contains detections based on Microsoft Azure Cloud logs.",
+                    "rrn": "rrn:cba:::threat:CGLQUINV3FSP"
+                },
+                {
+                    "uba_migrated": false,
+                    "detection_rule_count": 60,
+                    "name": "Cloud Service Activity",
+                    "description": "These detections identify suspicious activity, actions and events related to the use of cloud-based services",
+                    "rrn": "rrn:cba:::threat:8TKNVX80FYTU"
+                }
+            ],
+            "exception_count": 0,
+            "scoped_exception_count": 0,
+            "score": 0,
+            "last_detected_date": null,
+            "workflows": null,
+            "total_exception_matches_month": null,
+            "total_scoped_exception_matches_month": null,
+            "responsibility": null,
+            "responsibilities": null
+        },
+        {
+            "rule_set": "DR",
+            "rrn": "rrn:cba:::detection-rule:M9FFD6ZQI2NR",
+            "rrn_revision": "rrn:cba:::detection-rule:version:OABR6W541J6L",
+            "obsolete": false,
+            "invalid": false,
+            "create_date": "2025-06-16T18:00:56.368044Z",
+            "state": {
+                "value": "ACTIVE",
+                "reason": null
+            },
+            "last_modified_date": "2025-06-18T01:40:15.14388Z",
+            "activated_date": "2025-06-18T01:40:15.14388Z",
+            "assessment": [],
+            "rule": {
+                "schema": 2,
+                "name": "Account Compromise (O365) - Outbound Mail Rate Limit Exceeded and High Volume of Spam",
+                "rule_action": "CREATES_INVESTIGATIONS",
+                "priority_level": "HIGH",
+                "condition": {
+                    "timespan": "24h",
+                    "legs": [
+                        {
+                            "condition": {
+                                "type": "LEQL",
+                                "value": "from(\n  event_type = \"cloud_service_activity\"\n)\nwhere(\n    service = NOCASE(\"o365\")\n  AND\n    action ICONTAINS \"HygieneTenantEvents\"\n  AND\n    source_json.EventId\n      IN [\n        \"31\",\n        \"4\"\n      ]\n  AND\n    source_json.Reason = /^OutboundSpamLast24Hours=\\d{2}\\d+.*/i\n)"
+                            },
+                            "count": 1,
+                            "id": "rrn:cba:::detection-rule:leg:version:TFYCI8Z7N32S",
+                            "name": "OutboundSpamLast24Hours",
+                            "description": null,
+                            "count_by": {},
+                            "group_by_overrides": null
+                        },
+                        {
+                            "condition": {
+                                "type": "LEQL",
+                                "value": "from(\n  event_type = \"cloud_service_activity\"\n)\nwhere(\n    service = NOCASE(\"o365\")\n  AND\n    action ICONTAINS \"HygieneTenantEvents\"\n  AND\n    source_json.EventId = \"34\"\n  AND\n    source_json.Reason ISTARTS-WITH \"RecipientRateLimitExceeded\"\n)"
+                            },
+                            "count": 1,
+                            "id": "rrn:cba:::detection-rule:leg:version:KJYAJH38N6O2",
+                            "name": "RecipientRateLimitExceeded",
+                            "description": null,
+                            "count_by": {},
+                            "group_by_overrides": null
+                        }
+                    ],
+                    "type": "COMPOSITE",
+                    "group_by": {
+                        "0": "source_account"
+                    }
+                },
+                "tactics": [
+                    "TA0042",
+                    "TA0001"
+                ],
+                "techniques": [
+                    "T1586",
+                    "T1585.002",
+                    "T1586.002",
+                    "T1566"
+                ],
+                "labels": [],
+                "description": "This detection correlates a Microsoft Office 365 account having exceeded the default daily cap for outbound mail (10,000), along with being identified as sending a large volume of potential spam. These actions are indicative of an account compromise, where a threat actor may phish or otherwise deceive a user to steal their credentials, and then use the compromised account to attempt to phish/spam other users.",
+                "recommendation": "If the activity is not expected, disable the impacted account(s) and revoke all active sessions. Review the user's inbox rules and remove any unexpected entries. Review actions taken from the impacted account, from the suspicious source IP address or ISP. Determine the source of the authentication which led to the suspicious activity and use the relevant information (ISP, IP address, etc.) to scope the environment for any other users which might be impacted. Implement MFA for all users within the environment and provide security awareness training to mitigate future credential theft.",
+                "throttle": null,
+                "threshold": null
+            },
+            "rule_groups": [],
+            "event_types": [
+                "cloud_service_activity"
+            ],
+            "event_subtypes": [],
+            "detection_count": 0,
+            "threats": [
+                {
+                    "uba_migrated": false,
+                    "detection_rule_count": 60,
+                    "name": "Cloud Service Activity",
+                    "description": "These detections identify suspicious activity, actions and events related to the use of cloud-based services",
+                    "rrn": "rrn:cba:::threat:8TKNVX80FYTU"
+                },
+                {
+                    "uba_migrated": false,
+                    "detection_rule_count": 52,
+                    "name": "Microsoft Azure Cloud Activity",
+                    "description": "This threat contains detections based on Microsoft Azure Cloud logs.",
+                    "rrn": "rrn:cba:::threat:CGLQUINV3FSP"
+                }
+            ],
+            "exception_count": 0,
+            "scoped_exception_count": 0,
+            "score": 0,
+            "last_detected_date": null,
+            "workflows": null,
+            "total_exception_matches_month": null,
+            "total_scoped_exception_matches_month": null,
+            "responsibility": null,
+            "responsibilities": null
+        },
+        {
+            "rule_set": "DR",
+            "rrn": "rrn:cba:::detection-rule:J4VWKSVYEFU6",
+            "rrn_revision": "rrn:cba:::detection-rule:version:J4VWKSVYEFU6",
+            "obsolete": false,
+            "invalid": false,
+            "create_date": "2025-12-24T19:57:39.492305Z",
+            "state": {
+                "value": "ACTIVE",
+                "reason": null
+            },
+            "last_modified_date": "2025-12-24T19:57:39.492305Z",
+            "activated_date": "2025-12-24T19:57:39.492305Z",
+            "assessment": [],
+            "rule": {
+                "schema": 2,
+                "name": "Account Compromise - PKINIT via Shadow Credentials",
+                "rule_action": "CREATES_INVESTIGATIONS",
+                "priority_level": "HIGH",
+                "condition": {
+                    "timespan": "3h",
+                    "legs": [
+                        {
+                            "condition": {
+                                "type": "LEQL",
+                                "value": "from(\n  event_type = \"raw\"\n)\nwhere(\n    (\n        event_code,\n        source_json.eventCode\n          = \"5136\"\n      AND\n        attribute_ldap_display_name,\n        source_json.insertionStrings.11\n          ICONTAINS \"msDS-KeyCredentialLink\"\n      AND\n        operation_type,\n        source_json.insertionStrings.14\n          CONTAINS \"%%14674\"\n      AND\n        object_class,\n        source_json.insertionStrings.10\n          ICONTAINS \"user\"\n    )\n  OR\n    (\n        event_code,\n        source_json.eventCode\n          = \"4662\"\n      AND\n        properties,\n        source_json.insertionStrings.11\n          ICONTAINS \"5b47d60f-6090-40b2-9f37-2a4de88f3063\"\n      AND\n        access_mask,\n        source_json.insertionStrings.10\n          = \"0x20\"\n      AND\n        object_type,\n        source_json.insertionStrings.5\n          ICONTAINS \"bf967aba-0de6-11d0-a285-00aa003049e2\"\n    )\n)"
+                            },
+                            "count": 1,
+                            "id": "rrn:cba:::detection-rule:leg:version:UN1T5B87P1UA",
+                            "name": "Add Alternate Credentials",
+                            "description": null,
+                            "count_by": {},
+                            "group_by_overrides": null
+                        },
+                        {
+                            "condition": {
+                                "type": "LEQL",
+                                "value": "from(\n  event_type = \"asset_auth\"\n)\nwhere(\n    windows_event_code,\n    source_json.eventCode\n      = \"4768\"\n  AND\n    (\n        ALL(\n          source_json.insertionStrings.11,\n          source_json.insertionStrings.12,\n          source_json.insertionStrings.13\n        )\n          = /.+/\n      OR\n        ALL(\n          source_json.eventData.CertIssuerName,\n          source_json.eventData.CertSerialNumber,\n          source_json.eventData.CertThumbprint\n        )\n          = /.+/\n    )\n  AND\n    (\n        source_json.insertionStrings.0 == source_json.insertionStrings.11\n      OR\n        destination_account,\n        source_json.insertionStrings.0\n          == source_json.eventData.CertIssuerName\n      OR\n        source_json.insertionStrings.11,\n        source_json.eventData.CertIssuerName\n          = /.*\\$$/i\n    )\n  AND\n    source_json.eventData.TicketOptions,\n    source_json.insertionStrings.5\n      = /^0x\\d{3}[^1].*/\n)"
+                            },
+                            "count": 1,
+                            "id": "rrn:cba:::detection-rule:leg:version:EBUJIEYZZA2L",
+                            "name": "TGT via PKINIT using Self-Signed Cert",
+                            "description": null,
+                            "count_by": {},
+                            "group_by_overrides": {
+                                "0": "destination_account"
+                            }
+                        }
+                    ],
+                    "type": "COMPOSITE",
+                    "group_by": {
+                        "0": "subject_user_name"
+                    }
+                },
+                "tactics": [
+                    "TA0006",
+                    "TA0005",
+                    "TA0008"
+                ],
+                "techniques": [
+                    "T1550",
+                    "T1649"
+                ],
+                "labels": [],
+                "description": "A certificate obtained via Active Directory Certificate Services (ADCS) can be used to request a Ticket Granting Ticket (TGT). This method of Kerberos pre-authentication is known as [Public Key Cryptography for Initial Authentication](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-pkca/d0cf1763-3541-4008-a75f-a577fa5e8c5b) (PKINIT) (Type 16). There are numerous ways to illegitimately obtain an ADCS certificate within a vulnerable environment, such as abusing a misconfigured certificate template.\n\nWhen attempting PKINIT, the requestor may use a self-signed certificate which typically presents as the Certificate Issuer Name being the same as the requesting account. In some cases the requestor may be a machine account, which are commonly added by threat actors. A self-signed certificate indicates that instead of legitimately obtaining a certificate from the Certificate Authority server, the account has created the certificate themselves (i.e., they are effectively vouching for themselves).\n\nOne method to obtain a self-signed certificate is via the Shadow Credentials technique. For this technique, the threat actor will write a public key (alternate credentials) into the `msDS-KeyCredentialLink` attribute of a target account. These credentials can then be used as part of a self crafted certificate when they request a new TGT for the account via PKINIT. This detection identifies that the `msDS-KeyCredentialLink` attribute has been written to, and a self signed ADCS certificate was used for PKINIT, via the same account, which confirms that both steps of a Shadow Credentials attack have taken place.\n\nThe `msDS-KeyCredentialLink` attribute may also be used legitimately to add alternate credentials to an account, such as for Windows Hello or Credential Guard, but is also commonly abused by threat actors.",
+                "recommendation": "If this activity is not expected, contain impacted assets/users and reset credentials. Clear the public keys stored within the `msDS-KeyCredentialLink` attribute. Remove write permissions to the `msDS-KeyCredentialLink` attribute where there is no need. If the attack was conducted via a newly added machine account, remove it and consider changing the default value of `MachineAccountQuota` for users within the domain. By default the value for `MachineAccountQuota` is 10, meaning that AD users can add up to 10 machine accounts to the domain. Review asset authentications and process activity from the source of the activity to determine the scope of the compromise.",
+                "throttle": null,
+                "threshold": null
+            },
+            "rule_groups": [],
+            "event_types": [
+                "raw",
+                "asset_auth"
+            ],
+            "event_subtypes": [],
+            "detection_count": 0,
+            "threats": [
+                {
+                    "uba_migrated": false,
+                    "detection_rule_count": 43,
+                    "name": "Suspicious Asset Authentications",
+                    "description": "These detections identify suspicious activity from asset authentication records collected by Insight Agent.",
+                    "rrn": "rrn:cba:::threat:7MCMGE0U0QRC"
+                }
+            ],
+            "exception_count": 0,
+            "scoped_exception_count": 0,
+            "score": 0,
+            "last_detected_date": null,
+            "workflows": null,
+            "total_exception_matches_month": null,
+            "total_scoped_exception_matches_month": null,
+            "responsibility": null,
+            "responsibilities": null
+        },
+        {
+            "rule_set": "DR",
+            "rrn": "rrn:cba:::detection-rule:TF944AY1EEHJ",
+            "rrn_revision": "rrn:cba:::detection-rule:version:TF944AY1EEHJ",
+            "obsolete": false,
+            "invalid": false,
+            "create_date": "2025-12-24T19:50:46.80289Z",
+            "state": {
+                "value": "ACTIVE",
+                "reason": null
+            },
+            "last_modified_date": "2025-12-24T19:50:46.80289Z",
+            "activated_date": "2025-12-24T19:50:46.80289Z",
+            "assessment": [],
+            "rule": {
+                "schema": 2,
+                "name": "Account Compromise - PKINIT via Shadow Credentials (Raw)",
+                "rule_action": "CREATES_INVESTIGATIONS",
+                "priority_level": "HIGH",
+                "condition": {
+                    "timespan": "3h",
+                    "legs": [
+                        {
+                            "condition": {
+                                "type": "LEQL",
+                                "value": "from(\n  event_type = \"raw\"\n)\nwhere(\n    event_code,\n    source_json.eventCode\n      = \"4768\"\n  AND\n    (\n        ALL(\n          source_json.insertionStrings.11,\n          source_json.insertionStrings.12,\n          source_json.insertionStrings.13\n        )\n          = /.+/\n      OR\n        ALL(\n          cert_issuer_name,\n          cert_serial_number,\n          cert_thumbprint\n        )\n          = /.+/\n    )\n  AND\n    (\n        target_user_name == cert_issuer_name\n      OR\n        source_json.insertionStrings.0 == source_json.insertionStrings.11\n      OR\n        cert_issuer_name,\n        source_json.insertionStrings.11\n          = /.*\\$$/i\n    )\n  AND\n    ticket_options,\n    source_json.insertionStrings.5\n      = /^0x\\d{3}[^1].*/\n)"
+                            },
+                            "count": 1,
+                            "id": "rrn:cba:::detection-rule:leg:version:ESQ4QEKLKXOI",
+                            "name": "TGT via PKINIT using Self-Signed Cert",
+                            "description": null,
+                            "count_by": {},
+                            "group_by_overrides": null
+                        },
+                        {
+                            "condition": {
+                                "type": "LEQL",
+                                "value": "from(\n  event_type = \"raw\"\n)\nwhere(\n    (\n        event_code,\n        source_json.eventCode\n          = \"5136\"\n      AND\n        attribute_ldap_display_name,\n        source_json.insertionStrings.11\n          ICONTAINS \"msDS-KeyCredentialLink\"\n      AND\n        operation_type,\n        source_json.insertionStrings.14\n          CONTAINS \"%%14674\"\n      AND\n        object_class,\n        source_json.insertionStrings.10\n          ICONTAINS \"user\"\n    )\n  OR\n    (\n        event_code,\n        source_json.eventCode\n          = \"4662\"\n      AND\n        properties,\n        source_json.insertionStrings.11\n          ICONTAINS \"5b47d60f-6090-40b2-9f37-2a4de88f3063\"\n      AND\n        access_mask,\n        source_json.insertionStrings.10\n          = \"0x20\"\n      AND\n        object_type,\n        source_json.insertionStrings.5\n          ICONTAINS \"bf967aba-0de6-11d0-a285-00aa003049e2\"\n    )\n)"
+                            },
+                            "count": 1,
+                            "id": "rrn:cba:::detection-rule:leg:version:GPQFQZIGIA71",
+                            "name": "Add Alternate Credentials",
+                            "description": null,
+                            "count_by": {},
+                            "group_by_overrides": {
+                                "0": "target_user_name"
+                            }
+                        }
+                    ],
+                    "type": "COMPOSITE",
+                    "group_by": {
+                        "0": "subject_user_name"
+                    }
+                },
+                "tactics": [
+                    "TA0006",
+                    "TA0005",
+                    "TA0008"
+                ],
+                "techniques": [
+                    "T1550",
+                    "T1649"
+                ],
+                "labels": [],
+                "description": "A certificate obtained via Active Directory Certificate Services (ADCS) can be used to request a Ticket Granting Ticket (TGT). This method of Kerberos pre-authentication is known as [Public Key Cryptography for Initial Authentication](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-pkca/d0cf1763-3541-4008-a75f-a577fa5e8c5b) (PKINIT) (Type 16). There are numerous ways to illegitimately obtain an ADCS certificate within a vulnerable environment, such as abusing a misconfigured certificate template.\n\nWhen attempting PKINIT, the requestor may use a self-signed certificate which typically presents as the Certificate Issuer Name being the same as the requesting account. In some cases the requestor may be a machine account, which are commonly added by threat actors. A self-signed certificate indicates that instead of legitimately obtaining a certificate from the Certificate Authority server, the account has created the certificate themselves (i.e., they are effectively vouching for themselves).\n\nOne method to obtain a self-signed certificate is via the Shadow Credentials technique. For this technique, the threat actor will write a public key (alternate credentials) into the `msDS-KeyCredentialLink` attribute of a target account. These credentials can then be used as part of a self crafted certificate when they request a new TGT for the account via PKINIT. This detection identifies that the `msDS-KeyCredentialLink` attribute has been written to, and a self signed ADCS certificate was used for PKINIT, via the same account, which confirms that both steps of a Shadow Credentials attack have taken place.\n\nThe `msDS-KeyCredentialLink` attribute may also be used legitimately to add alternate credentials to an account, such as for Windows Hello or Credential Guard, but is also commonly abused by threat actors.",
+                "recommendation": "If this activity is not expected, contain impacted assets/users and reset credentials. Clear the public keys stored within the `msDS-KeyCredentialLink` attribute. Remove write permissions to the `msDS-KeyCredentialLink` attribute where there is no need. If the attack was conducted via a newly added machine account, remove it and consider changing the default value of `MachineAccountQuota` for users within the domain. By default the value for `MachineAccountQuota` is 10, meaning that AD users can add up to 10 machine accounts to the domain. Review asset authentications and process activity from the source of the activity to determine the scope of the compromise.",
+                "throttle": null,
+                "threshold": null
+            },
+            "rule_groups": [],
+            "event_types": [
+                "raw"
+            ],
+            "event_subtypes": [],
+            "detection_count": 0,
+            "threats": [
+                {
+                    "uba_migrated": false,
+                    "detection_rule_count": 43,
+                    "name": "Suspicious Asset Authentications",
+                    "description": "These detections identify suspicious activity from asset authentication records collected by Insight Agent.",
+                    "rrn": "rrn:cba:::threat:7MCMGE0U0QRC"
+                }
+            ],
+            "exception_count": 0,
+            "scoped_exception_count": 0,
+            "score": 0,
+            "last_detected_date": null,
+            "workflows": null,
+            "total_exception_matches_month": null,
+            "total_scoped_exception_matches_month": null,
+            "responsibility": null,
+            "responsibilities": null
+        },
+        {
+            "rule_set": "DR",
+            "rrn": "rrn:cba:::detection-rule:K99NV9VGGYE7",
+            "rrn_revision": "rrn:cba:::detection-rule:version:NGHL67APJZ9Q",
+            "obsolete": false,
+            "invalid": false,
+            "create_date": "2025-01-31T15:25:21.633947Z",
+            "state": {
+                "value": "ACTIVE",
+                "reason": null
+            },
+            "last_modified_date": "2025-04-08T21:12:35.280461Z",
+            "activated_date": "2025-02-05T19:37:37.033476Z",
+            "assessment": [],
+            "rule": {
+                "schema": 2,
+                "name": "Account Compromise - Successful Logon via ADCS Certificate (PKINIT)",
+                "rule_action": "CREATES_INVESTIGATIONS",
+                "priority_level": "HIGH",
+                "condition": {
+                    "timespan": "24h",
+                    "legs": [
+                        {
+                            "condition": {
+                                "type": "LEQL",
+                                "value": "from(\n  event_type = \"asset_auth\"\n)\nwhere(\n    source_json.eventCode = \"4624\"\n  AND\n    result = NOCASE(\"SUCCESS\")\n  AND\n    service\n      ISTARTS-WITH-ANY [\n        \"kerberos\",\n        \"ntlm\"\n      ]\n  AND\n    logon_type\n      IIN [\n        \"NETWORK\",\n        \"REMOTE\"\n      ]\n)"
+                            },
+                            "count": 1,
+                            "id": "rrn:cba:::detection-rule:leg:version:WYGS0RKDVS74",
+                            "name": "4624 - An account was successfully logged on.",
+                            "description": null,
+                            "count_by": {},
+                            "group_by_overrides": null
+                        },
+                        {
+                            "condition": {
+                                "type": "LEQL",
+                                "value": "from(\n  event_type = \"asset_auth\"\n)\nwhere(\n    source_json.eventCode = \"4768\"\n  AND\n    result = NOCASE(\"SUCCESS\")\n  AND\n    (\n        ALL(\n          source_json.insertionStrings.11,\n          source_json.insertionStrings.12,\n          source_json.insertionStrings.13\n        )\n          = /.+/\n      OR\n        ALL(\n          source_json.eventData.CertIssuerName,\n          source_json.eventData.CertSerialNumber,\n          source_json.eventData.CertThumbprint\n        )\n          = /.+/\n    )\n  AND\n    source_json.eventData.PreAuthType,\n    source_json.insertionStrings.8\n      IN [\n        \"16\",\n        \"17\"\n      ]\n  AND\n    service ISTARTS-WITH \"krbtgt\"\n  AND\n    source_json.insertionStrings.5 = /^0x\\d{3}[^1].*/\n)"
+                            },
+                            "count": 1,
+                            "id": "rrn:cba:::detection-rule:leg:version:N6063ZMC56C8",
+                            "name": "4768 - A Kerberos authentication ticket (TGT) was requested.",
+                            "description": null,
+                            "count_by": {},
+                            "group_by_overrides": null
+                        }
+                    ],
+                    "type": "COMPOSITE",
+                    "group_by": {
+                        "0": "source_asset_address",
+                        "1": "destination_account"
+                    }
+                },
+                "tactics": [
+                    "TA0006"
+                ],
+                "techniques": [
+                    "T1649"
+                ],
+                "labels": [],
+                "description": "A certificate obtained via Active Directory Certificate Services (ADCS) can be used to request a Ticket Granting Ticket (TGT). This method of Kerberos pre-authentication is known as [Public Key Cryptography for Initial Authentication](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-pkca/d0cf1763-3541-4008-a75f-a577fa5e8c5b) (PKINIT) (Type 16), which is much rarer than the typical method of pre-authentication (Type 15). There are numerous ways to illegitimately obtain an ADCS certificate within a vulnerable environment, such as abusing a misconfigured certificate template. The TGT obtained via the ADCS certificate can then be further utilized in a variety of attacks, the ultimate result of which is a successful authentication to a compromised account, which this detection looks for.",
+                "recommendation": "Verify that the events happened in the correct order. The successful logon should occur after the TGT request. If the activity is not expected, contain impacted users and assets. Revoke the certificate used in the attack. Review other activity and actions taken from the source address to determine the root cause of the attack and the extent of the compromise, and apply containment as needed.\n\nCertificate Remediations:\n1. Identify the Certificate Authority (CA) server that issued the certificate within the TGT request log (4768). Note the serial number and thumbprint of the requested certificate within the same log.\n2. Open the certificate service on the CA that issued the certificate. This can be done quickly via Win+R -> certsrv.msc -> enter.\n3. Right-click on Issued Certificates under the relevant CA and navigate to View -> Filter. Add a filter for the Serial Number field that is equal to that of the certificate that was issued.\n4. The issued certificate should now be visible in the primary pane. Right-click on it and navigate to All Tasks -> Revoke Certificate . Note the certificate template that was used to issue it. \n5. Enter the necessary details and confirm, to revoke the certificate.\n6. Locate the Certificate Template that was used to request the certificate within the certificate authority service (certsrv.msc), using the noted template name from step 4.\n7. Review and correct any misconfigurations within the certificate template. Alternatively, if the template is not needed, delete it.",
+                "throttle": null,
+                "threshold": null
+            },
+            "rule_groups": [],
+            "event_types": [
+                "asset_auth"
+            ],
+            "event_subtypes": [],
+            "detection_count": 0,
+            "threats": [
+                {
+                    "uba_migrated": false,
+                    "detection_rule_count": 43,
+                    "name": "Suspicious Asset Authentications",
+                    "description": "These detections identify suspicious activity from asset authentication records collected by Insight Agent.",
+                    "rrn": "rrn:cba:::threat:7MCMGE0U0QRC"
+                }
+            ],
+            "exception_count": 0,
+            "scoped_exception_count": 0,
+            "score": 0,
+            "last_detected_date": null,
+            "workflows": null,
+            "total_exception_matches_month": null,
+            "total_scoped_exception_matches_month": null,
+            "responsibility": null,
+            "responsibilities": null
+        },
+        {
+            "rule_set": "DR",
+            "rrn": "rrn:cba:::detection-rule:28P5GV8JPNDJ",
+            "rrn_revision": "rrn:cba:::detection-rule:version:1A6Z7AKX7IAW",
+            "obsolete": false,
+            "invalid": false,
+            "create_date": "2024-07-01T16:00:24.477367Z",
+            "state": {
+                "value": "ACTIVE",
+                "reason": null
+            },
+            "last_modified_date": "2025-11-19T08:22:22.188477Z",
+            "activated_date": "2024-09-27T19:38:06.851488Z",
+            "assessment": [],
+            "rule": {
+                "schema": 2,
+                "name": "Advanced Malware Alert - An advanced malware system has generated an alert",
+                "rule_action": "CREATES_INVESTIGATIONS",
+                "priority_level": "LOW",
+                "condition": {
+                    "type": "LEQL",
+                    "value": "from(\n  event_type = \"advanced_malware\"\n)\nwhere(\n    NOT\n      severity = \"BENIGN\"\n  AND\n    severity = /.+/\n)"
+                },
+                "tactics": [
+                    "TA0042",
+                    "TA0002"
+                ],
+                "techniques": [
+                    "T1588.001",
+                    "T1204"
+                ],
+                "labels": [
+                    "User Behavior Analytics"
+                ],
+                "description": "An advanced malware system has generated an alert.",
+                "recommendation": "Review the file or network traffic that generated the alert.",
+                "throttle": null,
+                "threshold": {
+                    "group_by": [
+                        "asset",
+                        "alert_name"
+                    ],
+                    "max_threshold_time_span_seconds": 2592000,
+                    "timespan": "1h",
+                    "condition": "1"
+                }
+            },
+            "rule_groups": [],
+            "event_types": [
+                "advanced_malware"
+            ],
+            "event_subtypes": null,
+            "detection_count": 372,
+            "threats": [
+                {
+                    "uba_migrated": true,
+                    "detection_rule_count": 63,
+                    "name": "Migrated Legacy Rules",
+                    "description": "Rules that have been migrated from the Legacy UBA Rules section",
+                    "rrn": "rrn:cba:::threat:BX5XRUAHOPDP"
+                }
+            ],
+            "exception_count": 1,
+            "scoped_exception_count": 0,
+            "score": 220,
+            "last_detected_date": "2026-01-29T23:35:33.366853Z",
+            "workflows": null,
+            "total_exception_matches_month": null,
+            "total_scoped_exception_matches_month": null,
+            "responsibility": null,
+            "responsibilities": null
+        },
+        {
+            "rule_set": "DR",
+            "rrn": "rrn:cba:::detection-rule:A1CWMSXE4AY4",
+            "rrn_revision": "rrn:cba:::detection-rule:version:UVZKPASI4FXV",
+            "obsolete": false,
+            "invalid": false,
+            "create_date": "2025-08-19T21:36:05.858592Z",
+            "state": {
+                "value": "ACTIVE",
+                "reason": null
+            },
+            "last_modified_date": "2025-08-21T23:33:47.203966Z",
+            "activated_date": "2025-08-19T21:36:05.858592Z",
+            "assessment": [],
+            "rule": {
+                "schema": 2,
+                "name": "Amazon GuardDuty - Attacksequence:eks/compromisedcluster",
+                "rule_action": "CREATES_INVESTIGATIONS",
+                "priority_level": "HIGH",
+                "condition": {
+                    "type": "LEQL",
+                    "value": "from(\n    event_type = \"third_party_alert\"\n  AND\n    event_subtype = \"aws_guard_duty\"\n)\nwhere(\n  type = NOCASE(\"Attacksequence:eks/compromisedcluster\")\n)"
+                },
+                "tactics": [
+                    "TA0002"
+                ],
+                "techniques": [
+                    "T1059.004"
+                ],
+                "labels": [],
+                "description": "This finding informs you that GuardDuty detected a sequence of suspicious actions that indicates a potentially compromised Amazon EKS cluster in your environment. Multiple suspicious and anomalous attack behaviors, such as malicious processes or connection with malicious endpoints, were observed in the same Amazon EKS cluster.",
+                "recommendation": "Remediation actions: If this behavior is unexpected in your environment, then your Amazon EKS cluster may be compromised. For comprehensive remediation guidance, see Remediating EKS Protection findings and Remediating Runtime Monitoring findings in AWS.",
+                "throttle": null,
+                "threshold": null
+            },
+            "rule_groups": [],
+            "event_types": [
+                "third_party_alert"
+            ],
+            "event_subtypes": [
+                "aws_guard_duty"
+            ],
+            "detection_count": 0,
+            "threats": [
+                {
+                    "uba_migrated": true,
+                    "detection_rule_count": 240,
+                    "name": "Amazon GuardDuty",
+                    "description": "This threat contains detections based on Amazon GuardDuty logs.",
+                    "rrn": "rrn:cba:::threat:03QOY5M3OJZ2"
+                }
+            ],
+            "exception_count": 0,
+            "scoped_exception_count": 0,
+            "score": 0,
+            "last_detected_date": null,
+            "workflows": null,
+            "total_exception_matches_month": null,
+            "total_scoped_exception_matches_month": null,
+            "responsibility": null,
+            "responsibilities": null
+        }
+    ],
+    "metadata": {
+        "size": 10,
+        "cdr": {
+            "limit": 50,
+            "used": 11,
+            "remaining": 39
+        },
+        "rule_counts": null
+    },
+    "options": {
+        "filters": [
+            {
+                "name": "activated_date",
+                "type": "DATE_TIME"
+            },
+            {
+                "name": "assessment_status",
+                "type": "TEXT"
+            },
+            {
+                "name": "create_date",
+                "type": "DATE_TIME"
+            },
+            {
+                "name": "description",
+                "type": "TEXT"
+            },
+            {
+                "name": "detection_count",
+                "type": "NUMBER"
+            },
+            {
+                "name": "event_subtypes",
+                "type": "TEXT"
+            },
+            {
+                "name": "event_types",
+                "type": "TEXT"
+            },
+            {
+                "name": "exception_count",
+                "type": "NUMBER"
+            },
+            {
+                "name": "total_exception_matches_month",
+                "type": "NUMBER"
+            },
+            {
+                "name": "labels",
+                "type": "TEXT"
+            },
+            {
+                "name": "last_detected_date",
+                "type": "DATE_TIME"
+            },
+            {
+                "name": "last_modified_date",
+                "type": "DATE_TIME"
+            },
+            {
+                "name": "name",
+                "type": "TEXT"
+            },
+            {
+                "name": "obsolete",
+                "type": "BOOLEAN"
+            },
+            {
+                "name": "rule_priority",
+                "type": "TEXT"
+            },
+            {
+                "name": "responsibilities",
+                "type": "TEXT"
+            },
+            {
+                "name": "responsibility",
+                "type": "TEXT"
+            },
+            {
+                "name": "rrn",
+                "type": "TEXT"
+            },
+            {
+                "name": "rrn_revision",
+                "type": "TEXT"
+            },
+            {
+                "name": "rule_action",
+                "type": "TEXT"
+            },
+            {
+                "name": "rule_group_campaign_id",
+                "type": "TEXT"
+            },
+            {
+                "name": "rule_group_date_added",
+                "type": "DATE_TIME"
+            },
+            {
+                "name": "rule_set",
+                "type": "TEXT"
+            },
+            {
+                "name": "score",
+                "type": "NUMBER"
+            },
+            {
+                "name": "state",
+                "type": "BOOLEAN"
+            },
+            {
+                "name": "tactic_code",
+                "type": "TEXT"
+            },
+            {
+                "name": "tactic",
+                "type": "TEXT"
+            },
+            {
+                "name": "technique_code",
+                "type": "TEXT"
+            },
+            {
+                "name": "technique",
+                "type": "TEXT"
+            },
+            {
+                "name": "threat",
+                "type": "TEXT"
+            },
+            {
+                "name": "uba_migrated",
+                "type": "BOOLEAN"
+            },
+            {
+                "name": "workflows",
+                "type": "TEXT"
+            }
+        ],
+        "sorts": {
+            "activated_date": [
+                "ASC",
+                "DESC"
+            ],
+            "create_date": [
+                "ASC",
+                "DESC"
+            ],
+            "description": [
+                "ASC",
+                "DESC"
+            ],
+            "detection_count": [
+                "ASC",
+                "DESC"
+            ],
+            "exception_count": [
+                "ASC",
+                "DESC"
+            ],
+            "total_exception_matches_month": [
+                "ASC",
+                "DESC"
+            ],
+            "last_detected_date": [
+                "ASC",
+                "DESC"
+            ],
+            "last_modified_date": [
+                "ASC",
+                "DESC"
+            ],
+            "name": [
+                "ASC",
+                "DESC"
+            ],
+            "rule_priority": [
+                "ASC",
+                "DESC"
+            ],
+            "rule_action": [
+                "ASC",
+                "DESC"
+            ],
+            "score": [
+                "ASC",
+                "DESC"
+            ],
+            "threat": [
+                "ASC",
+                "DESC"
+            ],
+            "rule_group_date_added": [
+                "ASC",
+                "DESC"
+            ]
+        }
+    },
+    "position": "kdk4QW1hem9uIEd1YXJkRHV0eSAtIEF0dGFja3NlcXVlbmNlOmVrcy9jb21wcm9taXNlZGNsdXN0ZXKsQTFDV01TWEU0QVk0wA"
+}

@@ -1,0 +1,99 @@
+[
+    {
+        "id": "00000000-0000-bf93-0000-000000000000",
+        "name": "Brute force on pnb-mktg-361226",
+        "logs": [
+            "14ee993d-353e-4c16-b764-c13065f80997",
+            "3987121f-74b1-40eb-9664-65ec5ef6970d",
+            "277d2d8f-620c-4ca7-b047-6cc01f6e17a1",
+            "e8763bbb-33aa-4472-a1ca-013b03e46604",
+            "6466266f-c0d4-4ceb-b46f-d263ade84a64",
+            "c1336942-38ec-43e3-8254-55f84f6e668b",
+            "42e0da68-48a5-485f-a73b-c6de91d57d05",
+            "10946b32-f281-4a1f-bd23-82e238a169c0",
+            "0604c679-ae53-4ea9-8ecc-ad51c4298498"
+        ]
+    },
+    {
+        "id": "00000000-0000-d5e9-0000-000000000000",
+        "name": "Count distinct investigations",
+        "logs": [
+            "46947a22-f124-46fa-a232-2170692f138f"
+        ]
+    },
+    {
+        "id": "00000000-0000-ade9-0000-000000000000",
+        "name": "Monitoring of spdb.exe IOC (IP)",
+        "logs": [
+            "f9adc875-4fb1-42e9-97fe-62a07b3ab157",
+            "73ba1181-8657-45ca-887d-9fb81e4f20fb",
+            "f490b732-e1c0-4339-ae12-e0530ee1f893",
+            "353d57fb-f622-4903-b2b2-f77cb1750262",
+            "d68cb1b0-31be-415c-adaf-edef8853c833"
+        ]
+    },
+    {
+        "id": "00000000-0000-d5e9-0000-000000000000",
+        "name": "Count distinct investigations",
+        "logs": [
+            "46947a22-f124-46fa-a232-2170692f138f"
+        ]
+    },
+    {
+        "id": "00000000-0000-b0af-0000-000000000000",
+        "name": "PCI-DSS File Access Monitoring",
+        "logs": [
+            "fd812620-6501-473a-8895-08d670dad59e"
+        ]
+    },
+    {
+        "id": "00000000-0000-d5e9-0000-000000000000",
+        "name": "Count distinct investigations",
+        "logs": [
+            "46947a22-f124-46fa-a232-2170692f138f"
+        ]
+    },
+    {
+        "id": "00000000-0000-aff3-0000-000000000000",
+        "name": "PCI-DSS Login",
+        "logs": [
+            "14ee993d-353e-4c16-b764-c13065f80997",
+            "3987121f-74b1-40eb-9664-65ec5ef6970d",
+            "277d2d8f-620c-4ca7-b047-6cc01f6e17a1",
+            "e8763bbb-33aa-4472-a1ca-013b03e46604",
+            "6466266f-c0d4-4ceb-b46f-d263ade84a64",
+            "c1336942-38ec-43e3-8254-55f84f6e668b",
+            "42e0da68-48a5-485f-a73b-c6de91d57d05",
+            "10946b32-f281-4a1f-bd23-82e238a169c0",
+            "0604c679-ae53-4ea9-8ecc-ad51c4298498"
+        ]
+    },
+    {
+        "id": "00000000-0000-adea-0000-000000000000",
+        "name": "SPDB Monitoring (URL)",
+        "logs": []
+    },
+    {
+        "id": "00000000-0000-d5ea-0000-000000000000",
+        "name": "Count distinct alerts",
+        "logs": [
+            "93f9c740-3bc7-4476-b610-1db55a6f87c4"
+        ]
+    },
+    {
+        "id": "00000000-0000-c9ce-0000-000000000000",
+        "name": "SOC-202506-06: CAV1 DNS Queries",
+        "logs": [
+            "99d2db85-3417-476e-8c1a-2e955b6b108b",
+            "1017353b-4912-474e-b7d9-fc955b436edc",
+            "484619b6-1729-4a97-ac4c-e27f670204bc",
+            "52bdaa28-2061-4bea-8aef-1610a5ef3e5a",
+            "0eeb18ea-3360-447f-95cb-3faf5e5eb4b1",
+            "b9f6c231-8eda-4afa-8ec0-a8c93ed95650",
+            "5b0bfead-f2b1-451c-a38e-37076b043aed",
+            "08ef216f-2cde-47a1-afc2-8e7e6fe3a2fc",
+            "4cfba1fa-41da-40dc-9a0a-c290955b0579",
+            "e698beba-e439-48bb-979b-52dcce0c35f4"
+        ]
+    }
+]
